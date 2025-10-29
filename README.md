@@ -1,25 +1,29 @@
-# Tourista🍹⛱️
+# BackendBoilerplate ⚡️
 
-### A Tour Management Application
+### Node.js + TypeScript Backend Starter
 
-**_status: Still in progress..._**
+A production-ready backend boilerplate built with **Express.js** and **TypeScript**, designed for quickly setting up robust APIs with best practices for **security, error handling, and scalability**.
 
-TravelSphere is a comprehensive tour management system designed to simplify the planning, organization, and execution of trips for travel agencies, tour operators, and individual travelers. With TripPlanner, you can effortlessly manage itineraries, bookings, accommodations, transport schedules, and customer information — all from a single, intuitive platform.
+---
 
 ## Key Features
 
-- Itinerary Management: Plan and customize daily schedules for each tour.
-- Booking & Reservations: Handle hotel, transport, and activity bookings efficiently.
-- Customer Management: Store and manage traveler profiles and preferences.
-- Payment & Invoice Tracking: Securely process payments and track invoices.
-- Analytics & Reporting: Gain insights on tours, customer trends, and revenue.
+- **TypeScript Ready**: Full TypeScript support with strict typing for safer code.
+- **Express.js Structured Setup**: Modular folder structure for routes, controllers, middlewares, and utilities.
+- **Authentication**: Ready-to-use JWT or session-based authentication setup.
+- **Input Validation**: Built-in validation using **Zod** for data integrity.
+- **Global Error Handling**: Centralized error handler with custom `AppError` class.
+- **Security Enhancements**:
+  - Helmet for secure HTTP headers
+  - Rate limiting to prevent abuse
+  - Data sanitization (`xss-clean`, `express-mongo-sanitize`)
+  - CORS configuration
+- **Database Ready**: Easily integrate with MongoDB (or SQL) and use advanced Mongoose features like middleware and sub-schemas.
+- **Logging**: Integrated request logging with **Morgan**.
+- **Environment Management**: Supports `.env` configuration for secure environment variables.
+- **Async Utilities**: Helper functions for clean async error handling (`catchAsync`).
 
-## Application Security
+---
 
-- Custom Authentication with Passport.js
-- Google Authentication using Passport.js
-- Added Rate Limiting to prevent DDoS attacks
-- Handled Global error handling by modifying the JS built-in **New Error** class by building a New AppError class. It's make sure a structured error like **status code** and **error message** by occuring any of the app errors.
-- ZOD input validation to ensure the authentic users' data.
-- Implemented mongoose advanced features like pre-hook middleware and sub-schema.
-- For better type safty, I used **Typescript** everywhere.
+## Folder Structure
+
