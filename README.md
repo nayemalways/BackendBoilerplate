@@ -1,4 +1,4 @@
-# BackendBoilerplate ⚡️
+# BackendBoilerplate
 
 ### Node.js + TypeScript Backend Starter
 
