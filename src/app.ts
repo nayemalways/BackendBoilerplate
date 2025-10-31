@@ -7,10 +7,21 @@ import { NotFound } from './app/middlewares/NotFound';
 import rateLimit from 'express-rate-limit';
 import { safeSanitizeMiddleware } from './app/middlewares/mongoSanitizer';
 import env from './app/config/env';
+import expressSession from 'express-session';
+import passport from 'passport';
+import './app/config/passport.config'
 
 
 const app = express();
 
+app.use(expressSession({
+  secret: env.EXPRESS_SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false
+}));
+
+app.use(passport.initialize()); // Initilazed Passport
+app.use(passport.session()); // Create a session
 app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
