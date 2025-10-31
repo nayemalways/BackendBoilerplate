@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-console */
 import passport from 'passport';
+import { Strategy as LocalStrategy } from 'passport-local';
 import {
   Strategy as GoogleStrategy,
   Profile,
@@ -9,7 +10,61 @@ import {
 import env from './env';
 import User from '../modules/user/user.model';
 import { Role } from '../modules/user/user.interface';
+import bcrypt from 'bcrypt';
 
+passport.use(
+  new LocalStrategy(
+    { usernameField: 'email', passwordField: 'password' },
+    async (email: string, password: string, done: any) => {
+      try {
+        const user = await User.findOne({ email });
+
+        if (!user) {
+          return done(null, false, { message: 'User does not exist!' });
+        }
+
+        const isGoogleUser = user.auths?.some(
+          (provider) => provider.provider === 'google'
+        );
+        const isFacebookUser = user.auths?.some(
+          (provider) => provider.provider === 'facebook'
+        );
+
+
+        if (isGoogleUser) {
+          return done(null, false, {
+            message:
+              'You are authenticate through Google. If you want to login with credentials, then at first login with Google and set a password to your gmail an then you can login with email and password!',
+          });
+        }
+
+        if (isFacebookUser) {
+          return done(null, false, {
+            message:
+              'You are authenticate through Facebook. If you want to login with credentials, then at first login with Facebook and set a password to your gmail an then you can login with email and password!',
+          });
+        }
+
+        // Matching Password
+        const isMatchPassowrd = await bcrypt.compare(
+          password,
+          user.password as string
+        );
+
+        if (!isMatchPassowrd) {
+        return  done(null, false, { message: 'Password incorrect!' });
+        }
+
+        return done(null, user);
+      } catch (error) {
+        console.log('Passport Local login error: ', error);
+        done(error);
+      }
+    }
+  )
+);
+
+// User Google Register
 passport.use(
   new GoogleStrategy(
     {
@@ -34,7 +89,7 @@ passport.use(
         let user = await User.findOne({ email });
 
         if (!user) {
-           user = await User.create({
+          user = await User.create({
             name: profile.displayName,
             email,
             picture: profile.photos?.[0].value,
@@ -70,4 +125,4 @@ passport.deserializeUser(async (id: string, done: any) => {
     console.log(error);
     done(error);
   }
-})
+});

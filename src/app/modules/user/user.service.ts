@@ -3,7 +3,7 @@ import { IAuthProvider, IUser } from './user.interface';
 import User from './user.model';
 import { sendEmail } from './../../utils/sendMail';
 import { randomOTPGenerator } from '../../utils/randomOTPGenerator';
-import { JwtPayload } from 'jsonwebtoken';
+
 
 const createUserService = async (payload: Partial<IUser>) => {
   const { email, ...rest } = payload;
@@ -50,7 +50,7 @@ const createUserService = async (payload: Partial<IUser>) => {
   };
 };
 
-const verifyUserService = async (email: JwtPayload, otp: string) => {
+const verifyUserService = async (email: string, otp: string) => {
   if (!email || !otp || otp.length < 4) {
     throw new AppError(400, 'OTP required!');
   }
