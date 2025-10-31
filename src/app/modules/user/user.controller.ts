@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { CatchAsync } from '../../utils/CatchAsync';
 import { SendResponse } from '../../utils/SendResponse';
 import { userServices } from './user.service';
-import { generateToken } from '../../utils/jwt';
-import env from '../../config/env';
+import { createUserTokens } from '../../utils/user.tokens';
+import { SetCookies } from '../../utils/setCookie';
 
 
 const createUser = CatchAsync(async (req: Request, res: Response) => {
@@ -39,18 +39,16 @@ const verifyUser = CatchAsync(async (req: Request, res: Response) => {
     isVerified: result?.isVerified,
   };
 
-  const authToken = generateToken(
-    jwtPayload,
-    env.JWT_SECRET,
-    env.JWT_EXPIRATION
-  );
+  // Set refreshToken and accessToken in Cookies
+  const userTokens = await createUserTokens(jwtPayload);
+  SetCookies(res, userTokens);
+
 
   SendResponse(res, {
     success: true,
     statusCode: 200,
     message: 'User verified successfuly!',
     data: {
-      token: authToken,
       data: result,
     },
   });
