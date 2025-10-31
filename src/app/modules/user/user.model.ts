@@ -20,7 +20,6 @@ const userSchema = new mongoose.Schema<IUser>({
     password: { type: String },
     picture: { type: String},
     otp: { type: String, default: 0 },
-    otpExpireAt: { type: Date },
     isVerified: { type: Boolean, default: false },
     role: { type: String, enum: [...Object.values(Role)], default: Role.USER },
     auths: [authProviderSchema]
@@ -32,8 +31,8 @@ const userSchema = new mongoose.Schema<IUser>({
 
 // Hashed password
 userSchema.pre("save", async function(next) {
-     if (!this.password) next();
-     const hashedPassword = await bcrypt.hash(this.password as string, parseInt(env?.BCRYPT_SALT_ROUND));
+     if (!this?.password) next();
+     const hashedPassword = await bcrypt.hash(this?.password as string, parseInt(env?.BCRYPT_SALT_ROUND));
      this.password = hashedPassword;
      next();
 });

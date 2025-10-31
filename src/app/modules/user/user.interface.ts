@@ -18,7 +18,6 @@ export interface IUser {
     picture?: string;
     isVerified?: boolean;
     otp?: string;
-    otpExpireAt?: Date;
     role?: Role;
     auths?: IAuthProvider[]
 }

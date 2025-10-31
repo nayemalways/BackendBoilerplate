@@ -19,13 +19,12 @@ const createUserService = async (payload: Partial<IUser>) => {
   };
 
   const generateOTP = randomOTPGenerator(1000, 9999);
-  const otpExpiry = new Date(Date.now() + 2 * 60 * 1000); // 2 min
-
+ 
   const userPayload = {
     email,
     auths: authUser,
     otp: generateOTP,
-    otpExpireAt: otpExpiry,
+
     ...rest,
   };
 
@@ -42,6 +41,21 @@ const createUserService = async (payload: Partial<IUser>) => {
     },
   });
 
+
+  // Reset user OTP after 2 min
+  setTimeout(async () => {
+     creatUser.otp = "0";
+     creatUser.save();
+  }, 1000 * 60 * 2 );
+
+  // Delete User if he is not verified within __ time
+  setTimeout(async () => {
+    if(!creatUser.isVerified) {
+      await User.findByIdAndDelete(creatUser._id);
+    }
+  }, 1000 * 60 * 60 * 24 );
+
+
   return {
     _id: creatUser._id,
     name: creatUser.name,
@@ -51,7 +65,7 @@ const createUserService = async (payload: Partial<IUser>) => {
 };
 
 const verifyUserService = async (email: string, otp: string) => {
-  if (!email || !otp || otp.length < 4) {
+  if (!email || !otp) {
     throw new AppError(400, 'OTP required!');
   }
 
@@ -60,14 +74,10 @@ const verifyUserService = async (email: string, otp: string) => {
     throw new AppError(400, 'User not found by this email!');
   }
 
-  if (isUser.otp !== otp) {
+  if (isUser.otp !== otp || otp.length < 4) {
     throw new AppError(400, 'Invalid OTP!');
   }
 
-  const now = Date.now();
-  if (!isUser.otpExpireAt || isUser.otpExpireAt.getTime() < now) {
-    throw new AppError(400, 'Your OTP has expires!');
-  }
 
   const updateUser = await User.findOneAndUpdate(
     { email },
