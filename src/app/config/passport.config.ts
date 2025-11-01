@@ -7,11 +7,16 @@ import {
   Profile,
   VerifyCallback,
 } from 'passport-google-oauth20';
+import {
+  Strategy as FacebookStrategy,
+  // Profile as FacebookProfile,
+} from 'passport-facebook';
 import env from './env';
 import User from '../modules/user/user.model';
 import { Role } from '../modules/user/user.interface';
 import bcrypt from 'bcrypt';
 
+// CREDENTIALS LOGIN LOCAL STRATEGY
 passport.use(
   new LocalStrategy(
     { usernameField: 'email', passwordField: 'password' },
@@ -29,7 +34,6 @@ passport.use(
         const isFacebookUser = user.auths?.some(
           (provider) => provider.provider === 'facebook'
         );
-
 
         if (isGoogleUser) {
           return done(null, false, {
@@ -52,7 +56,7 @@ passport.use(
         );
 
         if (!isMatchPassowrd) {
-        return  done(null, false, { message: 'Password incorrect!' });
+          return done(null, false, { message: 'Password incorrect!' });
         }
 
         return done(null, user);
@@ -64,7 +68,7 @@ passport.use(
   )
 );
 
-// User Google Register
+// USER GOOGLE REGISTER STRATEGY
 passport.use(
   new GoogleStrategy(
     {
@@ -108,6 +112,46 @@ passport.use(
       } catch (error) {
         console.log('Google strategy error', error);
         done(error);
+      }
+    }
+  )
+);
+
+// USER FACEBOOK REGISTER STRATEGY
+passport.use(
+  new FacebookStrategy(
+    {
+      clientID: env.FABEBOOK_APP_ID,
+      clientSecret: env.FABEBOOK_APP_SECRET,
+      callbackURL: env.FABEBOOK_APP_CALLBACK_URL,
+      profileFields: ['id', 'displayName', 'emails', 'photos'],
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const email = profile.emails?.[0]?.value || `${profile.id}@facebook.com`;
+        let user = await User.findOne({ email });
+
+
+        if (!user) {
+          user = await User.create({
+            name: profile.displayName,
+            email,
+            picture: profile?.photos?.[0]?.value,
+            role: Role.USER,
+            isVerified: true,
+            auths: [
+              {
+                provider: 'facebook',
+                providerId: profile.id,
+              },
+            ],
+          });
+        }
+
+        done(null, user);
+      } catch (error) {
+        done(error);
+        console.log('Passport Facebook Authentiaction Error: ', error);
       }
     }
   )

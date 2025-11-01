@@ -34,6 +34,10 @@ interface EnvInterfaces {
   GOOGLE_OAUTH_SECRET: string;
   GOOGLE_CALLBACK_URL: string;
 
+  FABEBOOK_APP_ID: string;
+  FABEBOOK_APP_SECRET: string;
+  FABEBOOK_APP_CALLBACK_URL: string;
+
   EXPRESS_SESSION_SECRET: string;
 }
 
@@ -70,6 +74,10 @@ const loadEnvVarbles = (): EnvInterfaces => {
     "GOOGLE_OAUTH_SECRET",
     "GOOGLE_OAUTH_ID",
     "GOOGLE_CALLBACK_URL",
+
+    "FABEBOOK_APP_ID",
+    "FABEBOOK_APP_SECRET",
+    "FABEBOOK_APP_CALLBACK_URL",
 
     "EXPRESS_SESSION_SECRET"
   ];
@@ -113,6 +121,10 @@ const loadEnvVarbles = (): EnvInterfaces => {
     GOOGLE_OAUTH_ID: process.env.GOOGLE_OAUTH_ID as string,
     GOOGLE_OAUTH_SECRET: process.env.GOOGLE_OAUTH_SECRET as string,
     GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL as string,
+
+    FABEBOOK_APP_ID: process.env.FABEBOOK_APP_ID as string,
+    FABEBOOK_APP_SECRET: process.env.FABEBOOK_APP_SECRET as string,
+    FABEBOOK_APP_CALLBACK_URL: process.env.FABEBOOK_APP_CALLBACK_URL as string,
 
     EXPRESS_SESSION_SECRET: process.env.EXPRESS_SESSION_SECRET as string,
   };
