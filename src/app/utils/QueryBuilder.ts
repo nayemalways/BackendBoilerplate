@@ -59,13 +59,27 @@
 //     return this;
 //   }
 
-//   join(refs: string[]): this {
-//     refs.forEach((ref) => {
-//       return (this.queryModel = this.queryModel.populate({ path: ref }));
-//     });
-//     // this.queryModel = this.queryModel.populate({ path: 'division' });
-//     // this.queryModel = this.queryModel.populate({ path: 'tourType' });
-//     return this;
+//   join(): this {
+//     const joinQuery = this.query?.join;
+    
+//     if (!joinQuery) {
+//         return this;
+//     }
+
+//    const tests = joinQuery.split(",");
+
+//    tests.forEach((test) => {
+//      const [path, fields] = test.split('-');
+//      const selectFields = fields ? fields.split('|').join(' ') : '';
+//      this.queryModel = this.queryModel.populate({
+//        path: path.trim(),
+//        select: selectFields,
+//      });
+//    });
+
+//     // query example: shop-business_name|business_logo,category-category_name,category_logo
+
+//    return this;
 //   }
 
 //   // Final build instance
