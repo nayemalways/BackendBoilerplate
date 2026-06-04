@@ -13,7 +13,6 @@ const authProviderSchema = new mongoose.Schema<IAuthProvider>({
 });
 
 
-
 const userSchema = new mongoose.Schema<IUser>({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true, lowercase:true },
@@ -30,11 +29,16 @@ const userSchema = new mongoose.Schema<IUser>({
 
 
 // Hashed password
-userSchema.pre("save", async function(next) {
-     if (!this?.password) next();
-     const hashedPassword = await bcrypt.hash(this?.password as string, parseInt(env?.BCRYPT_SALT_ROUND));
-     this.password = hashedPassword;
-     next();
+userSchema.pre('save', async function () {
+  if (!this.isModified('password')) return;  // Only hash the password if it has been modified
+  
+  if (this.password) {
+    const hashedPassword = await bcrypt.hash(
+      this.password,
+      parseInt(env.BCRYPT_SALT_ROUND)
+    );
+    this.password = hashedPassword;
+  }
 });
 
 

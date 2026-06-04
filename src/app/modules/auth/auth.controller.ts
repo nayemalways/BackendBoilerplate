@@ -11,6 +11,7 @@ import { createUserTokens } from '../../utils/user.tokens';
 import { JwtPayload } from 'jsonwebtoken';
 import env from '../../config/env';
 import { SendResponse } from '../../utils/SendResponse';
+import { authService } from './auth.service';
 
 const googleRegister = CatchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -107,6 +108,20 @@ const credentialsLogin = CatchAsync(
         },
       });
     })(req, res, next);
+  }
+);
+
+// REGISTER WITH GOOGLE FOR APPLE DEVICE
+const googleAuthSystem = CatchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await authService.googleAuthSystem(req.body);
+
+    SendResponse(res, {
+      success: true,
+      statusCode: 200,
+      message: 'Authentication success',
+      data: result,
+    })
   }
 );
 

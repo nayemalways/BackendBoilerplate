@@ -64,7 +64,7 @@ export const sendEmail = async ({
     const templatePath = path.join(__dirname, `templates/${templateName}.ejs`);
 
     const html = await ejs.renderFile(templatePath, templateData ?? {});
-    const textFallback = convertHtmlToText(html) || 'RishtaPro';
+    const textFallback = convertHtmlToText(html) || 'Your App Name';
     const unsubscribeUrl = getUnsubscribeUrl();
     const unsubscribeMail = env.UNSUBSCRIBE_MAIL?.trim();
     const unsubscribeHeaderParts = [

@@ -20,7 +20,7 @@ app.use(expressSession({
   saveUninitialized: false
 }));
 
-app.use(passport.initialize()); // Initilazed Passport
+app.use(passport.initialize()); // Initialized Passport
 app.use(passport.session()); // Create a session
 app.use(express.json());
 app.use(cors());

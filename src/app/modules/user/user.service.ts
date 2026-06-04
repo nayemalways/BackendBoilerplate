@@ -10,7 +10,7 @@ const createUserService = async (payload: Partial<IUser>) => {
   const isUser = await User.findOne({ email });
 
   if (isUser) {
-    throw new AppError(400, 'User aleready exist with this email!');
+    throw new AppError(400, 'User already exist with this email!');
   }
 
   const authUser: IAuthProvider = {
@@ -22,45 +22,45 @@ const createUserService = async (payload: Partial<IUser>) => {
  
   const userPayload = {
     email,
-    auths: authUser,
-    otp: generateOTP,
+    auths: [authUser],
+    otp: generateOTP.toString(),
 
     ...rest,
   };
 
-  const creatUser = await User.create(userPayload);
+  const createUser = await User.create(userPayload);
 
   // Send OTP to verify
   sendEmail({
-    to: creatUser.email,
+    to: createUser.email,
     subject: 'User verify OTP',
     templateName: 'otp',
     templateData: {
-      name: creatUser.name,
-      otp: creatUser.otp,
+      name: createUser.name,
+      otp: createUser.otp,
     },
   });
 
 
   // Reset user OTP after 2 min
   setTimeout(async () => {
-     creatUser.otp = "0";
-     creatUser.save();
+     createUser.otp = "0";
+     createUser.save();
   }, 1000 * 60 * 2 );
 
   // Delete User if he is not verified within __ time
   setTimeout(async () => {
-    if(!creatUser.isVerified) {
-      await User.findByIdAndDelete(creatUser._id);
+    if(!createUser.isVerified) {
+      await User.findByIdAndDelete(createUser._id);
     }
   }, 1000 * 60 * 60 * 24 );
 
 
   return {
-    _id: creatUser._id,
-    name: creatUser.name,
-    email: creatUser.email,
-    role: creatUser.role,
+    _id: createUser._id,
+    name: createUser.name,
+    email: createUser.email,
+    role: createUser.role,
   };
 };
 

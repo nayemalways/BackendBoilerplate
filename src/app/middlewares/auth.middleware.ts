@@ -10,7 +10,7 @@ export const checkAuth =
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const accessToken = req.headers.authorization;
-      const verifyUser = verifyToken( accessToken as string, env.JWT_SECRET ) as JwtPayload;
+      const verifyUser = verifyToken( accessToken as string, env.JWT_ACCESS_SECRET ) as JwtPayload;
 
       /*
       ----------------------------------------------------------------
