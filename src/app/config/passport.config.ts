@@ -1,172 +1,158 @@
-// /* eslint-disable @typescript-eslint/no-explicit-any */
-// /* eslint-disable no-console */
-// import passport from 'passport';
-// import { Strategy as LocalStrategy } from 'passport-local';
-// import {
-//   Strategy as GoogleStrategy,
-//   Profile,
-//   VerifyCallback,
-// } from 'passport-google-oauth20';
-// import {
-//   Strategy as FacebookStrategy,
-//   // Profile as FacebookProfile,
-// } from 'passport-facebook';
-// import env from './env';
-// import User from '../modules/user/user.model';
-// import { Role } from '../modules/user/user.interface';
-// import bcrypt from 'bcrypt';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-console */
+import bcrypt from 'bcrypt';
+import passport from 'passport';
+import { Strategy as FacebookStrategy } from 'passport-facebook';
+import {
+  Profile,
+  Strategy as GoogleStrategy,
+  VerifyCallback,
+} from 'passport-google-oauth20';
+import { Strategy as LocalStrategy } from 'passport-local';
+import env from './env';
+import User from '../modules/user/user.model';
+import { Role } from '../modules/user/user.interface';
 
-// // CREDENTIALS LOGIN LOCAL STRATEGY
-// passport.use(
-//   new LocalStrategy(
-//     { usernameField: 'email', passwordField: 'password' },
-//     async (email: string, password: string, done: any) => {
-//       try {
-//         const user = await User.findOne({ email });
+passport.use(
+  new LocalStrategy(
+    { usernameField: 'email', passwordField: 'password' },
+    async (email: string, password: string, done: any) => {
+      try {
+        const user = await User.findOne({ email });
 
-//         if (!user) {
-//           return done(null, false, { message: 'User does not exist!' });
-//         }
+        if (!user) {
+          return done(null, false, { message: 'User does not exist!' });
+        }
 
-//         const isGoogleUser = user.auths?.some(
-//           (provider) => provider.provider === 'google'
-//         );
-//         const isFacebookUser = user.auths?.some(
-//           (provider) => provider.provider === 'facebook'
-//         );
+        const isGoogleUser = user.auths?.some(
+          (provider) => provider.provider === 'google'
+        );
+        const isFacebookUser = user.auths?.some(
+          (provider) => provider.provider === 'facebook'
+        );
 
-//         if (isGoogleUser) {
-//           return done(null, false, {
-//             message:
-//               'You are authenticate through Google. If you want to login with credentials, then at first login with Google and set a password to your gmail an then you can login with email and password!',
-//           });
-//         }
+        if (isGoogleUser || isFacebookUser) {
+          return done(null, false, {
+            message:
+              'This account was created with a social provider. Please login with that provider or set a password first.',
+          });
+        }
 
-//         if (isFacebookUser) {
-//           return done(null, false, {
-//             message:
-//               'You are authenticate through Facebook. If you want to login with credentials, then at first login with Facebook and set a password to your gmail an then you can login with email and password!',
-//           });
-//         }
+        if (!user.password) {
+          return done(null, false, { message: 'Password is not set!' });
+        }
 
-//         // Matching Password
-//         const isMatchPassword = await bcrypt.compare(
-//           password,
-//           user.password as string
-//         );
+        const isMatchPassword = await bcrypt.compare(password, user.password);
 
-//         if (!isMatchPassword) {
-//           return done(null, false, { message: 'Password incorrect!' });
-//         }
+        if (!isMatchPassword) {
+          return done(null, false, { message: 'Password incorrect!' });
+        }
 
-//         return done(null, user);
-//       } catch (error) {
-//         console.log('Passport Local login error: ', error);
-//         done(error);
-//       }
-//     }
-//   )
-// );
+        return done(null, user);
+      } catch (error) {
+        console.log('Passport local login error: ', error);
+        done(error);
+      }
+    }
+  )
+);
 
-// // USER GOOGLE REGISTER STRATEGY
-// passport.use(
-//   new GoogleStrategy(
-//     {
-//       clientID: env.GOOGLE_OAUTH_ID,
-//       clientSecret: env.GOOGLE_OAUTH_SECRET,
-//       callbackURL: env.GOOGLE_CALLBACK_URL,
-//     },
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: env.GOOGLE_OAUTH_ID,
+      clientSecret: env.GOOGLE_OAUTH_SECRET,
+      callbackURL: env.GOOGLE_CALLBACK_URL,
+    },
+    async (
+      _accessToken: string,
+      _refreshToken: string,
+      profile: Profile,
+      done: VerifyCallback
+    ) => {
+      try {
+        const email = profile.emails?.[0].value;
 
-//     async (
-//       _accessToken: string,
-//       _refreshToken: string,
-//       profile: Profile,
-//       done: VerifyCallback
-//     ) => {
-//       try {
-//         const email = profile.emails?.[0].value;
+        if (!email) {
+          return done(null, false, { message: 'No email found' });
+        }
 
-//         if (!email) {
-//           return done(null, false, { message: 'No email found' });
-//         }
+        let user = await User.findOne({ email });
 
-//         let user = await User.findOne({ email });
+        if (!user) {
+          user = await User.create({
+            name: profile.displayName,
+            email,
+            picture: profile.photos?.[0].value,
+            role: Role.USER,
+            isVerified: true,
+            auths: [
+              {
+                provider: 'google',
+                providerId: profile.id,
+              },
+            ],
+          });
+        }
 
-//         if (!user) {
-//           user = await User.create({
-//             name: profile.displayName,
-//             email,
-//             picture: profile.photos?.[0].value,
-//             role: Role.USER,
-//             isVerified: true,
-//             auths: [
-//               {
-//                 provider: 'google',
-//                 providerId: profile.id,
-//               },
-//             ],
-//           });
-//         }
+        return done(null, user);
+      } catch (error) {
+        console.log('Google strategy error', error);
+        done(error);
+      }
+    }
+  )
+);
 
-//         return done(null, user);
-//       } catch (error) {
-//         console.log('Google strategy error', error);
-//         done(error);
-//       }
-//     }
-//   )
-// );
+passport.use(
+  new FacebookStrategy(
+    {
+      clientID: env.FACEBOOK_APP_ID,
+      clientSecret: env.FACEBOOK_APP_SECRET,
+      callbackURL: env.FACEBOOK_APP_CALLBACK_URL,
+      profileFields: ['id', 'displayName', 'emails', 'photos'],
+    },
+    async (_accessToken, _refreshToken, profile, done) => {
+      try {
+        const email =
+          profile.emails?.[0]?.value || `${profile.id}@facebook.com`;
+        let user = await User.findOne({ email });
 
-// // USER FACEBOOK REGISTER STRATEGY
-// passport.use(
-//   new FacebookStrategy(
-//     {
-//       clientID: env.FACEBOOK_APP_ID,
-//       clientSecret: env.FACEBOOK_APP_SECRET,
-//       callbackURL: env.FACEBOOK_APP_CALLBACK_URL,
-//       profileFields: ['id', 'displayName', 'emails', 'photos'],
-//     },
-//     async (accessToken, refreshToken, profile, done) => {
-//       try {
-//         const email = profile.emails?.[0]?.value || `${profile.id}@facebook.com`;
-//         let user = await User.findOne({ email });
+        if (!user) {
+          user = await User.create({
+            name: profile.displayName,
+            email,
+            picture: profile.photos?.[0]?.value,
+            role: Role.USER,
+            isVerified: true,
+            auths: [
+              {
+                provider: 'facebook',
+                providerId: profile.id,
+              },
+            ],
+          });
+        }
 
+        done(null, user);
+      } catch (error) {
+        console.log('Passport Facebook authentication error: ', error);
+        done(error);
+      }
+    }
+  )
+);
 
-//         if (!user) {
-//           user = await User.create({
-//             name: profile.displayName,
-//             email,
-//             picture: profile?.photos?.[0]?.value,
-//             role: Role.USER,
-//             isVerified: true,
-//             auths: [
-//               {
-//                 provider: 'facebook',
-//                 providerId: profile.id,
-//               },
-//             ],
-//           });
-//         }
+passport.serializeUser((user: any, done: (err: any, id?: unknown) => void) => {
+  done(null, user._id);
+});
 
-//         done(null, user);
-//       } catch (error) {
-//         done(error);
-//         console.log('Passport Facebook Authentication Error: ', error);
-//       }
-//     }
-//   )
-// );
-
-// passport.serializeUser((user: any, done: (err: any, id?: unknown) => void) => {
-//   done(null, user._id);
-// });
-
-// passport.deserializeUser(async (id: string, done: any) => {
-//   try {
-//     const user = await User.findById(id);
-//     done(null, user);
-//   } catch (error) {
-//     console.log(error);
-//     done(error);
-//   }
-// });
+passport.deserializeUser(async (id: string, done: any) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (error) {
+    console.log(error);
+    done(error);
+  }
+});

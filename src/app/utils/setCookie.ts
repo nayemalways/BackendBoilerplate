@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { CookieOptions, Response } from 'express';
 import env from '../config/env';
 
 interface AuthTokenInfo {
@@ -7,20 +7,32 @@ interface AuthTokenInfo {
 }
 
 export const SetCookies = (res: Response, tokenInfo: AuthTokenInfo) => {
+  const cookieOptions: CookieOptions = {
+    httpOnly: true,
+    secure: env.NODE_ENV === 'production',
+    sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+  };
+
   if (tokenInfo.accessToken) {
     res.cookie('accessToken', tokenInfo.accessToken, {
-      httpOnly: false,
-      secure: env.NODE_ENV === "development" ? false : true, 
-      sameSite: env.NODE_ENV === "development" ? 'lax' : 'none', 
+      ...cookieOptions,
     });
   }
 
   if (tokenInfo.refreshToken) {
     res.cookie('refreshToken', tokenInfo.refreshToken, {
-      httpOnly: true, 
-      secure: env.NODE_ENV === "development" ? false : true,
-      sameSite: env.NODE_ENV === "development" ? 'lax' : 'none'
+      ...cookieOptions,
     });
   }
 };
 
+export const ClearAuthCookies = (res: Response) => {
+  const cookieOptions: CookieOptions = {
+    httpOnly: true,
+    secure: env.NODE_ENV === 'production',
+    sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+  };
+
+  res.clearCookie('accessToken', cookieOptions);
+  res.clearCookie('refreshToken', cookieOptions);
+};

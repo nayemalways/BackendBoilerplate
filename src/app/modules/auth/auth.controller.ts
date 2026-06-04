@@ -6,7 +6,7 @@ import { CatchAsync } from '../../utils/CatchAsync';
 import passport from 'passport';
 import AppError from '../../errorHelpers/AppError';
 import httpStatus from 'http-status-codes';
-import { SetCookies } from '../../utils/setCookie';
+import { ClearAuthCookies, SetCookies } from '../../utils/setCookie';
 import { createUserTokens } from '../../utils/user.tokens';
 import { JwtPayload } from 'jsonwebtoken';
 import env from '../../config/env';
@@ -111,6 +111,31 @@ const credentialsLogin = CatchAsync(
   }
 );
 
+const refreshToken = CatchAsync(async (req: Request, res: Response) => {
+  const token = req.cookies?.refreshToken;
+  const userTokens = await authService.refreshToken(token);
+
+  SetCookies(res, userTokens);
+
+  SendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Token refreshed successfully',
+    data: null,
+  });
+});
+
+const logout = CatchAsync(async (req: Request, res: Response) => {
+  ClearAuthCookies(res);
+
+  SendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Logout success',
+    data: null,
+  });
+});
+
 // REGISTER WITH GOOGLE FOR APPLE DEVICE
 const googleAuthSystem = CatchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -129,6 +154,9 @@ export const authController = {
   googleRegister,
   googleCallback,
   credentialsLogin,
+  refreshToken,
+  logout,
   facebookCallback,
   facebookRegister,
+  googleAuthSystem
 };

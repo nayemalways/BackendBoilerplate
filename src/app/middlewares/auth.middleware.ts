@@ -9,8 +9,16 @@ export const checkAuth =
   (...restRole: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const accessToken = req.headers.authorization;
-      const verifyUser = verifyToken( accessToken as string, env.JWT_ACCESS_SECRET ) as JwtPayload;
+      const bearerToken = req.headers.authorization?.startsWith('Bearer ')
+        ? req.headers.authorization.split(' ')[1]
+        : req.headers.authorization;
+      const accessToken = bearerToken || req.cookies?.accessToken;
+
+      if (!accessToken) {
+        throw new AppError(httpStatus.UNAUTHORIZED, 'Not Authorized');
+      }
+
+      const verifyUser = verifyToken(accessToken, env.JWT_ACCESS_SECRET) as JwtPayload;
 
       /*
       ----------------------------------------------------------------
@@ -21,14 +29,14 @@ export const checkAuth =
        
       // CHECK Verified
       if (!verifyUser) {
-        throw new AppError(httpStatus.BAD_REQUEST, 'Not Authorized')
-      };
+        throw new AppError(httpStatus.UNAUTHORIZED, 'Not Authorized')
+      }
 
-      if (!restRole.includes(verifyUser.role)) {
+      if (restRole.length && !restRole.includes(verifyUser.role)) {
         throw new AppError( httpStatus.FORBIDDEN, 'You are not permitted to access this route')
-      };
+      }
 
-      req.user = verifyUser; // Set an global type for this line see on: interface > intex.d.ts
+      req.user = verifyUser; // Set an global type for this line see on: interface > index.d.ts
       next();
     } catch (error) {
       next(error);

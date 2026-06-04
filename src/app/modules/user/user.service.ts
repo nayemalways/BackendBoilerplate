@@ -147,9 +147,22 @@ const resendOTPService = async (email: string) => {
   return isUser;
 };
 
+const getMeService = async (userId: string) => {
+  const user = await User.findById(userId).select(
+    '-password -otp -auths -createdAt -updatedAt'
+  );
+
+  if (!user) {
+    throw new AppError(404, 'User not found');
+  }
+
+  return user;
+};
+
 // Export All Services
 export const userServices = {
   createUserService,
+  getMeService,
   resendOTPService,
   verifyUserService,
 };

@@ -4,6 +4,8 @@ import { SendResponse } from '../../utils/SendResponse';
 import { userServices } from './user.service';
 import { createUserTokens } from '../../utils/user.tokens';
 import { SetCookies } from '../../utils/setCookie';
+import env from '../../config/env';
+import { JwtPayload } from 'jsonwebtoken';
 
 
 const createUser = CatchAsync(async (req: Request, res: Response) => {
@@ -11,7 +13,8 @@ const createUser = CatchAsync(async (req: Request, res: Response) => {
 
   res.cookie('email', result.email, {
     httpOnly: true,
-    secure: false,
+    secure: env.NODE_ENV === 'production',
+    sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
   });
 
   SendResponse(res, {
@@ -47,7 +50,7 @@ const verifyUser = CatchAsync(async (req: Request, res: Response) => {
   SendResponse(res, {
     success: true,
     statusCode: 200,
-    message: 'User verified successfuly!',
+    message: 'User verified successfully!',
     data: {
       data: result,
     },
@@ -66,8 +69,21 @@ const resendOTP = CatchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMe = CatchAsync(async (req: Request, res: Response) => {
+  const authUser = req.user as JwtPayload;
+  const result = await userServices.getMeService(authUser.userId);
+
+  SendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: 'Profile fetched successfully!',
+    data: result,
+  });
+});
+
 export const userControllers = {
   createUser,
+  getMe,
   verifyUser,
   resendOTP,
 };

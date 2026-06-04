@@ -48,27 +48,27 @@ interface EnvInterfaces {
 }
 
 const loadEnvVariables = (): EnvInterfaces => {
-  const requireEnvVariables: string[] = [
+  const requiredEnvVariables: string[] = [
     'PORT',
     'MONGO_URI',
-    'JWT_ACCESS_SECRET',
     'NODE_ENV',
+    
     'JWT_ACCESS_SECRET',
     'JWT_ACCESS_EXPIRATION',
     'JWT_REFRESH_SECRET',
     'JWT_REFRESH_EXPIRATION',
     'BCRYPT_SALT_ROUND',
- 
+
     'FRONTEND_URL',
     'BACKEND_URL',
- 
+
     'CLOUDINARY_NAME',
     'CLOUDINARY_SECRET',
     'CLOUDINARY_API_KEY',
 
     'REQUEST_RATE_LIMIT',
     'REQUEST_RATE_LIMIT_TIME',
-     
+
     'REDIS_HOST',
     'REDIS_PORT',
     'REDIS_USERNAME',
@@ -90,10 +90,10 @@ const loadEnvVariables = (): EnvInterfaces => {
     'FACEBOOK_APP_ID',
     'FACEBOOK_APP_SECRET',
     'FACEBOOK_APP_CALLBACK_URL',
-
-    'EXPRESS_SESSION_SECRET'
+    'EXPRESS_SESSION_SECRET',
   ];
-  requireEnvVariables.forEach((KEY) => {
+
+  requiredEnvVariables.forEach((KEY) => {
     if (!process.env[KEY]) {
       throw new Error(`Missing required env variable ${KEY}`);
     }

@@ -87,7 +87,9 @@ npm run build
 - Password hashing with bcrypt
 - Zod request validation
 - JWT access and refresh token generation
-- Auth cookies for access and refresh tokens
+- Dev/prod-aware HTTP-only auth cookies
+- Refresh token and logout endpoints
+- Protected `me` endpoint as a role-based auth example
 - Centralized response helper
 - Centralized async wrapper
 - Global error handler with custom `AppError`
@@ -98,6 +100,7 @@ npm run build
 - Nodemailer + EJS email template support
 - Cloudinary upload/delete utility
 - Multer Cloudinary storage config
+- Health check endpoint
 - Graceful shutdown handlers for `SIGTERM` and `SIGINT`
 - Unhandled rejection and uncaught exception handlers
 
@@ -109,15 +112,22 @@ Base URL:
 /api/v1
 ```
 
+Health route:
+
+- `GET /health` - server uptime, DB status, environment, and timestamp
+
 User routes:
 
 - `POST /api/v1/user/create` - create user and send OTP email
+- `GET /api/v1/user/me` - fetch logged-in user profile
 - `GET /api/v1/user/verify/:otp` - verify user OTP
 - `GET /api/v1/user/resend-otp` - resend OTP
 
 Auth routes:
 
 - `POST /api/v1/auth/login` - credentials login through Passport local strategy
+- `POST /api/v1/auth/refresh-token` - refresh access and refresh cookies
+- `POST /api/v1/auth/logout` - clear auth cookies
 - `GET /api/v1/auth/google` - start Google OAuth login
 - `GET /api/v1/auth/google/callback` - Google OAuth callback
 - `GET /api/v1/auth/facebook` - start Facebook OAuth login
@@ -125,7 +135,7 @@ Auth routes:
 
 ## Optional Pre-Built Features
 
-Some integrations are already written but intentionally commented or credential-dependent. To use them, uncomment the related code and add the required credentials in `.env`.
+Some integrations are already written but credential-dependent. To use them, add the required credentials in `.env` and uncomment any startup line mentioned below.
 
 ### Passport Local, Google, And Facebook Auth
 
@@ -135,7 +145,7 @@ File:
 src/app/config/passport.config.ts
 ```
 
-This file contains commented Passport strategies for:
+This file contains Passport strategies for:
 
 - Credentials login with email and password
 - Google OAuth registration/login
@@ -144,7 +154,6 @@ This file contains commented Passport strategies for:
 
 To enable it:
 
-- Uncomment `src/app/config/passport.config.ts`
 - Add these credentials to `.env`:
 
 ```env
@@ -247,5 +256,4 @@ src/
 ## Notes
 
 - Keep real secrets out of `.env.example`.
-- If an optional feature is not needed, keep its credentials empty only if `env.ts` does not require them for your current setup.
 - For production, set `NODE_ENV=production`, use strong JWT/session secrets, configure trusted CORS origins, and use secure HTTPS cookies.
