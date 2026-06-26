@@ -1,6 +1,6 @@
 get:
   tags:
-    - Products
+    - User
   description: Get authenticated user
   security:
     - bearerAuth: []
