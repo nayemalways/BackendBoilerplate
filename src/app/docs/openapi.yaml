@@ -1,0 +1,22 @@
+openapi: 3.0.0
+
+info: 
+  title: Boilerplate - API Documentation
+  description: Boilerplate - API Documentation
+  version: 1.0.0
+
+
+servers: 
+  - url: http://localhost:3000/api/v1
+
+
+paths:
+  /users/me:
+    $ref: './paths/user.path.yaml'
+
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      $ref: './security.yaml#/bearerAuth'

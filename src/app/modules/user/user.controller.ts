@@ -27,7 +27,7 @@ const createUser = CatchAsync(async (req: Request, res: Response) => {
 
 const verifyUser = CatchAsync(async (req: Request, res: Response) => {
   const email = req.cookies['email'] as string;
-  const otp = req.params.otp;
+  const otp = req.params.otp as string;
 
 
   const result = await userServices.verifyUserService(

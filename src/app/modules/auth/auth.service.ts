@@ -4,7 +4,7 @@ import env from "../../config/env";
 import AppError from "../../errorHelpers/AppError";
 import { verifyToken } from "../../utils/jwt";
 import { createUserTokens } from "../../utils/user.tokens";
-import { Role } from "../user/user.interface";
+import { IAuthProvider, Role } from "../user/user.interface";
 import User from "../user/user.model";
 
 const googleClient = new OAuth2Client();
@@ -43,7 +43,7 @@ const googleAuthSystem = async (payload: { id_token: string }) => {
   // Find or create user by googleId/sub.
   let user = await User.findOne({ email });
 
-  const auth = [
+  const auth: IAuthProvider[] = [
         {
           provider: 'google',
           providerId: sub,

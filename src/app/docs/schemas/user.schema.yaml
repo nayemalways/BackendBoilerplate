@@ -1,0 +1,24 @@
+
+userMe: 
+  type: object
+  properties:
+    _id:
+      type: string
+      example: b4j3lii3jf3i4lkm3
+    name:
+      type: string
+      example: "Donald Trump"
+    email:
+      type: string
+      example: donaldtrump@gmail.com
+    createdAt:
+      type: string
+      format: date-time
+      example: 2026-01-01T00:00:00.000Z
+    updatedAt:
+      type: string  
+      format: date-time
+      example: 2026-01-01T00:00:00.000Z
+    roles:
+      type: string
+      example: USER

@@ -12,6 +12,8 @@ import expressSession from 'express-session';
 import passport from 'passport';
 import './app/config/passport.config'
 import mongoose from 'mongoose';
+import { swaggerUiServe, swaggerUiSetup } from './app/config/swaggare.config';
+
 
 
 const app = express();
@@ -61,6 +63,11 @@ app.get('/health', (req: Request, res: Response) => {
   });
 });
 
+ app.use(
+    "/api-docs",
+    swaggerUiServe,
+    swaggerUiSetup
+  );
 // GLOBAL ROUTES
 app.use('/api/v1', router);
 

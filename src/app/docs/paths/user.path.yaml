@@ -1,0 +1,13 @@
+get:
+  tags:
+    - Products
+  description: Get authenticated user
+  security:
+    - bearerAuth: []
+  responses:
+    '200':
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/user.schema.yaml#/userMe'
